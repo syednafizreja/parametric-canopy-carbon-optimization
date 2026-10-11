@@ -1,31 +1,33 @@
 # Parametric Carbon Optimization – Concrete Canopy
 
-An interactive research prototype that links **geometry → structural response → material volume → embodied carbon** for a thin, doubly curved concrete shell canopy (12–18 m span) on tree-like branching supports with thickened edge beams.
+Interactive research prototype that links **geometry → structural response → material volume → embodied carbon** for a thin, doubly-curved concrete shell canopy (12–18 m span) supported by tree-like branching columns with thickened edge beams.
 
-> **Note.** This is a simplified research demonstration. Structural quantities are screening-level estimates that rank design alternatives; they are not a substitute for finite-element analysis or code verification.
+> **Note.** This is a simplified research demonstration. Structural quantities are screening-level estimates intended to rank design alternatives. They are not a substitute for finite-element analysis or code verification.
 
-## Use
+## Live demo
+After enabling GitHub Pages the project will be available at:  
+`https://YOUR_USERNAME.github.io/parametric-carbon-optimization/`
 
-Orbit with drag, zoom with scroll or pinch. Six parameters (span, transverse rise, shell thickness, number of tree supports, longitudinal camber, crown shape factor) update the model, volume, carbon, deflection and utilization in real time. **Run optimization** animates the design toward a lower-carbon solution for the chosen span; **Reset** restores the reference design. Percentages are relative to that reference.
+## Interaction
+- Drag to orbit, scroll / pinch to zoom
+- Six parameters update geometry, volume, carbon, deflection and utilization in real time
+- **Run Optimization** animates the design toward a lower-carbon solution for the chosen span
+- **Reset** restores the reference design
+- Percentages are relative to the reference configuration
 
-## Model
+## Model summary
+| Aspect | Approach |
+|--------|----------|
+| Geometry | Leaf-shaped plan, crown exponent, longitudinal camber, edge-beam thickening |
+| Section | Numerical integration of area, centroid and second moment at 100 stations |
+| Global response | Continuous girder on tree supports (three-moment equation) + creep-reduced stiffness |
+| Local response | Shallow-shell wing deflection + knocked-down arch buckling |
+| Carbon | (shell + trees) × 2450 kg/m³ × 0.34 kgCO₂e/kg (HPC/UHPFRC, cradle-to-gate) |
+| Optimizer | Seeded (1+λ) evolution strategy with utilization and slope penalties |
 
-| Step | Approach |
-|---|---|
-| Geometry | Mid-surface `y(ξ,η)` with leaf-shaped plan, crown exponent, camber; thickness grows toward the edges (edge beams). |
-| Section | Area, centroid and second moment integrated numerically over the cross-section at 100 stations. |
-| Global response | Continuous girder on tree supports with half-bay cantilevers; three-moment equation; deflection by double integration of M/(E_eff·I), creep φ = 1.5. |
-| Local response | Wing deflection with a shallow-shell stiffening surrogate; buckling of the transverse arch with a 0.25 knock-down factor. |
-| Carbon | (shell + tree volume) × 2450 kg/m³ × 0.34 kgCO₂e/kg (cement-rich HPC/UHPFRC, cradle to gate). Ordinary C35/45 is roughly 0.13–0.16. |
-| Fabrication | Maximum surface slope limited to 40° (single-sided formwork or sprayed casting). |
-| Optimizer | Seeded (1+λ) evolution strategy; cost = carbon + 0.15 × deflection + penalties for utilization > 0.85 and slope > 40°. |
+## Author
+**Syed Nafiz Reja Hasib**  
+Civil Engineering · Interests: sustainable materials, parametric structural design, digital construction
 
-## Run locally and deploy
-
-ES modules need a server: `python3 -m http.server`, then open `http://localhost:8000`.
-For GitHub Pages, push the four files to the repository root and enable **Settings → Pages → Deploy from branch**.
-Three.js r170 is loaded from jsDelivr through an import map in `index.html`.
-
-## Limitations and next steps
-
-Surrogates are calibrated by judgement, not against FE results. Natural next steps: shell FE or dynamic-relaxation coupling, funicular form-finding, a Pareto front over carbon and stiffness, and fabrication metrics for formwork.
+## Technical notes
+Pure HTML + CSS + ES modules. Three.js r170 loaded via jsDelivr. No build step required. For local testing use any static server (`python3 -m http.server`).
