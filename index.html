@@ -1,67 +1,163 @@
 <!doctype html>
-<html lang="en">
+<html lang="en-GB" data-theme="dark">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Parametric Carbon Optimization – Aviation Canopy</title>
-<meta name="description" content="Interactive research prototype linking geometry, structural response and embodied carbon of an aviation-terminal style shell canopy.">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&display=swap">
-<link rel="stylesheet" href="style.css">
-<script type="importmap">
-{"imports":{
-  "three":"https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js",
-  "three/addons/":"https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/"}}
-</script>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ShellLab · Form finding for concrete shells</title>
+  <meta name="description" content="Force-density form finding for compression shells, in the browser. Set the plan, supports, rise and lateral load; read bar forces, support thrust, equilibrium and embodied carbon. Solver checked against ShellForm.">
+  <meta name="author" content="Syed Nafiz Reja Hasib">
+  <meta name="color-scheme" content="light dark">
+  <meta property="og:title" content="ShellLab">
+  <meta property="og:description" content="Force-density form finding for compression shells, in the browser.">
+  <meta property="og:image" content="https://syednafizreja.github.io/ShellLab/docs/screenshot-dark.png">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cpath d='M4 26 Q16 0 28 26' fill='none' stroke='%230e7490' stroke-width='3'/%3E%3C/svg%3E">
+  <link rel="preload" href="vendor/fonts/geist.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="src/style.css?v=30">
+  <script>
+    // Dark unless the visitor has switched to light before; applied before first paint.
+    (function () {
+      var t = null;
+      try { t = localStorage.getItem('shelllab-theme'); } catch (e) {}
+      document.documentElement.dataset.theme = t === 'light' ? 'light' : 'dark';
+    })();
+  </script>
+  <script type="importmap">
+    { "imports": { "three": "./vendor/three/three.module.js", "three/addons/": "./vendor/three/addons/" } }
+  </script>
 </head>
 <body>
-<div class="app">
-  <aside class="panel" id="panel">
-    <header>
-      <h1>Parametric Carbon Optimization</h1>
-      <p>Aviation-terminal shell canopy on tree columns: wing planform, dune waves, hypar twist and hexagonal skylights, linked to structural response and embodied carbon. Research prototype, not for design use.</p>
-    </header>
-    <div class="actions">
-      <button id="run" class="go">Run optimization</button>
-      <button id="reset">Reset</button>
-      <button id="fold" aria-expanded="true" aria-controls="sliders">Parameters</button>
-    </div>
-    <p id="status" role="status" aria-live="polite"></p>
-    <h2>Presets</h2>
-    <div id="presets" class="presets"></div>
-    <div id="sliders" class="sliders"></div>
-    <section class="hist"><h2>Solver history</h2><canvas id="plot" width="600" height="150" aria-label="Fitness of each improving design during optimization"></canvas></section>
-    <details class="method">
-      <summary>Model and assumptions</summary>
-      <ul>
-        <li>Form: wing planform with tapered tips and crescent sweep, upsweep, wave and hypar twist of the cross-section; the form parameters are architectural intent and stay fixed during optimization.</li>
-        <li>Section properties are integrated numerically from the real twisted and bent profile, including thickened edge beams.</li>
-        <li>Conical tree columns act as point supports of a continuous shell girder (three-moment solution, creep-reduced stiffness).</li>
-        <li>Tapered ribs and hexagonal skylights change wing stiffness, panel buckling and mass; wing deflection and buckling use shallow-shell surrogates that rank designs, they do not certify them.</li>
-        <li>Carbon = (shell + ribs + trees) × density × 0.34 kgCO₂e/kg, a cement-rich HPC/UHPFRC mix, cradle to gate.</li>
-        <li>Optimizer: seeded (1+λ) evolution strategy over the structural parameters, minimizing carbon with stiffness, utilization and ≤40° slope penalties.</li>
-      </ul>
-    </details>
-  </aside>
+  <a class="skip" href="#controls">Skip to controls</a>
 
-  <main class="stage">
-    <div class="kpis" id="kpis">
-      <div class="kpi"><span>Volume, m³</span><b id="k-vol">–</b><i id="d-vol"></i></div>
-      <div class="kpi"><span>Carbon, kgCO₂e</span><b id="k-co2">–</b><i id="d-co2"></i></div>
-      <div class="kpi"><span>Max deflection, mm</span><b id="k-def">–</b><i id="d-def"></i></div>
-      <div class="kpi"><span>Utilization</span><b id="k-util">–</b><i id="d-util"></i></div>
+  <header class="bar">
+    <h1 class="mark">
+      <a href="./"><svg viewBox="0 0 32 32" aria-hidden="true"><path d="M4 26 Q16 0 28 26"/></svg>ShellLab</a>
+      <span class="tag">Form finding for concrete shells</span>
+    </h1>
+    <nav aria-label="Related work">
+      <a href="#notes">Notes</a>
+      <a href="https://syednafizreja.github.io/ShellForm/explorer/">ShellForm</a>
+      <a href="https://github.com/syednafizreja/ShellBench">ShellBench</a>
+      <a href="https://github.com/syednafizreja/ShellLab">Source</a>
+    </nav>
+    <button class="icon" id="theme" type="button" aria-label="Switch theme">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8"/><path d="M12 4a8 8 0 0 1 0 16z" class="fill"/></svg>
+    </button>
+  </header>
+
+  <main>
+    <div class="work">
+      <form id="controls" class="side controls" aria-label="Inputs" onsubmit="return false">
+        <fieldset>
+          <legend>Plan</legend>
+          <div class="field"><label for="lx">Length, x</label><output for="lx" data-unit="m"></output><input id="lx" type="range" min="6" max="40" step="1" value="20"></div>
+          <div class="field"><label for="ly">Width, y</label><output for="ly" data-unit="m"></output><input id="ly" type="range" min="6" max="40" step="1" value="20"></div>
+          <div class="field"><label for="mesh">Grid spacing</label><output for="mesh" data-unit="m"></output><input id="mesh" type="range" min="0.5" max="2.5" step="0.25" value="1"></div>
+        </fieldset>
+
+        <fieldset>
+          <legend>Supports</legend>
+          <div class="presets" role="radiogroup" aria-label="Support layout" id="preset">
+            <button type="button" role="radio" data-v="corners"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="4" width="16" height="16"/><path class="s" d="M2.5 2.5h3v3h-3zM18.5 2.5h3v3h-3zM2.5 18.5h3v3h-3zM18.5 18.5h3v3h-3z"/></svg>Corners</button>
+            <button type="button" role="radio" data-v="mid-edges"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="4" width="16" height="16"/><path class="s" d="M2.5 2.5h3v3h-3zM18.5 2.5h3v3h-3zM2.5 18.5h3v3h-3zM18.5 18.5h3v3h-3zM10.5 2.5h3v3h-3zM10.5 18.5h3v3h-3zM2.5 10.5h3v3h-3zM18.5 10.5h3v3h-3z"/></svg>Mid-edges</button>
+            <button type="button" role="radio" data-v="two-edges"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="4" width="16" height="16"/><path class="e" d="M4 3v18M20 3v18"/></svg>2 edges</button>
+            <button type="button" role="radio" data-v="three-edges"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="4" width="16" height="16"/><path class="e" d="M4 3v18M20 3v18M3 20h18"/></svg>3 edges</button>
+            <button type="button" role="radio" data-v="edges"><svg viewBox="0 0 24 24" aria-hidden="true"><rect class="e" x="4" y="4" width="16" height="16"/></svg>4 edges</button>
+            <button type="button" role="radio" data-v="custom"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="4" width="16" height="16" class="d"/><path class="s" d="M2.5 6.5h3v3h-3zM14.5 2.5h3v3h-3zM18.5 14.5h3v3h-3zM6.5 18.5h3v3h-3z"/></svg>Custom</button>
+          </div>
+          <p class="hint">Click nodes on the plan to add or remove supports. With the plan focused, arrow keys move and Space toggles.</p>
+        </fieldset>
+
+        <fieldset>
+          <legend>Form</legend>
+          <div class="field"><label for="rise">Rise</label><output for="rise" data-unit="m"></output><input id="rise" type="range" min="0.5" max="12" step="0.1" value="4"></div>
+          <div class="field"><label for="fb" title="Force-density factor on the perimeter bars">Edge tie</label><output for="fb"></output><input id="fb" type="range" min="0" max="2" step="0.01" value="1"></div>
+        </fieldset>
+
+        <fieldset>
+          <legend>Lateral load</legend>
+          <div class="field"><label for="sax">S<sub>a</sub>, x</label><output for="sax" data-unit="g"></output><input id="sax" type="range" min="0" max="0.4" step="0.01" value="0"></div>
+          <div class="field"><label for="say">S<sub>a</sub>, y</label><output for="say" data-unit="g"></output><input id="say" type="range" min="0" max="0.4" step="0.01" value="0"></div>
+          <p class="hint">Carried by the gravity force densities, so the form leans. A shape study, not a seismic check.</p>
+        </fieldset>
+
+        <fieldset>
+          <legend>Shell</legend>
+          <div class="field"><label for="t">Thickness</label><output for="t" data-unit="mm"></output><input id="t" type="range" min="50" max="300" step="5" value="100"></div>
+        </fieldset>
+
+        <div class="actions">
+          <button type="button" class="btn" id="copy">Copy link</button>
+          <button type="button" class="btn" id="json">JSON</button>
+          <button type="button" class="btn" id="obj">OBJ</button>
+          <button type="button" class="btn quiet" id="reset">Reset</button>
+        </div>
+        <p class="status" id="status" role="status" aria-live="polite"></p>
+      </form>
+
+      <section class="stage" aria-label="Form">
+        <div class="seg" role="radiogroup" aria-label="Show" id="layer">
+          <button type="button" role="radio" data-v="forces">Bar forces</button>
+          <button type="button" role="radio" data-v="surface">Surface</button>
+        </div>
+        <span class="legend" id="legend" aria-hidden="true"></span>
+        <div id="view" class="view" role="img" aria-label="Three-dimensional view of the form. Drag to orbit, scroll to zoom."></div>
+        <div class="block" id="titleblock" aria-hidden="true"></div>
+        <span class="orbit" aria-hidden="true">Drag to orbit · scroll to zoom</span>
+        <p class="sr-only" id="view-summary" aria-live="polite"></p>
+      </section>
+
+      <aside class="side info" aria-label="Plan and results">
+        <section class="planbox" aria-labelledby="plan-h">
+          <h2 id="plan-h">Plan</h2>
+          <svg id="plan" tabindex="0" role="application" aria-label="Plan grid. Arrow keys move the cursor, Space or Enter toggles a support." aria-describedby="plan-cursor"></svg>
+          <ul class="key">
+            <li><span class="k-sup" aria-hidden="true"></span>Support</li>
+            <li><span class="k-out" aria-hidden="true"></span>Form edge</li>
+            <li><span class="k-arrow" aria-hidden="true"></span>Thrust, length ∝ √H</li>
+          </ul>
+          <p class="cursor" id="plan-cursor"></p>
+        </section>
+        <section class="readout" aria-labelledby="res-h">
+          <h2 id="res-h">Results</h2>
+          <div id="stats"></div>
+          <p class="note" id="carbon-note"></p>
+        </section>
+      </aside>
     </div>
-    <div id="view" aria-label="3D model of the concrete canopy. Drag to orbit, scroll or pinch to zoom."><div class="vtab">Perspective ▾</div></div>
-    <div class="bar">
-      <span id="dims"></span>
-      <span class="tools">
-        <span class="grp"><button data-mode="rendered" aria-pressed="true">Rendered</button><button data-mode="elevation" aria-pressed="false">Elevation</button><button data-mode="technical" aria-pressed="false">Technical</button><button data-mode="wire" aria-pressed="false">Wireframe</button></span>
-        <span class="grp"><button data-layer="ribs" aria-pressed="true">Ribs</button><button data-layer="glass" aria-pressed="true">Glass</button><button data-layer="dims" aria-pressed="true">Dims</button></span>
-        <button id="spin" aria-pressed="false">Orbit</button><button id="fit">Reset view</button><button id="png">Save PNG</button>
-      </span>
-    </div>
+
+    <section class="notes" id="notes" aria-labelledby="notes-h">
+      <h2 id="notes-h">Notes</h2>
+      <ol>
+        <li>
+          <h3>Form finding</h3>
+          <p>The plan is a pin-jointed grid in which each bar carries a force density <i>q</i> = <i>N</i>/<i>L</i>, negative in compression. With <i>q</i> fixed, equilibrium at the free nodes is linear in their coordinates (Schek, 1974), so x, y and z each come from one banded Cholesky solve. Perimeter bars take <i>q</i> times the edge tie, which stops unsupported edges from drawing in. The force densities are scaled once so the gravity form reaches the set rise, then reused for the lateral load.</p>
+        </li>
+        <li>
+          <h3>Loads and forces</h3>
+          <p>Self-weight is surface area × thickness × 25 kN/m³, shared equally between the nodes. The form does not depend on this scale, so a bar force is its unit-weight value times the node weight. Reactions balance the free-node loads, and the residual shown is the largest out-of-balance nodal force over the largest nodal load. The stress is a bar force over its strip of shell: a guide, not a design value.</p>
+        </li>
+        <li>
+          <h3>Carbon</h3>
+          <p>A1–A3 carbon is concrete volume × 340 kgCO₂e/m³ for C40, taken from <a href="https://github.com/syednafizreja/ShellBench/blob/v1.0.0/data/carbon_factors.csv">ShellBench v1.0.0</a> (GB/T 51366-2019, Table D.0.1), with ShellForm’s ±25 % band. Reinforcement is left out, so the figure is a lower bound.</p>
+        </li>
+        <li>
+          <h3>Scope</h3>
+          <p>This finds forms; it does not design shells. Thickness is not sized, and buckling, bending under non-funicular loads, reinforcement and supports are not checked. Sized and checked designs are in the <a href="https://syednafizreja.github.io/ShellForm/explorer/">ShellForm explorer</a>.</p>
+        </li>
+        <li>
+          <h3>Verification</h3>
+          <p>Six square cases, run through ShellForm v0.2.0 itself, are the test fixtures. The browser solver matches their coordinates to 1 × 10<sup>−13</sup> m and keeps every form in equilibrium to a relative residual below 10<sup>−9</sup>. The tests run on each push.</p>
+        </li>
+      </ol>
+    </section>
   </main>
-</div>
-<script type="module" src="script.js"></script>
+
+  <footer class="foot">
+    <span><a href="https://syednafizreja.github.io/">Syed Nafiz Reja Hasib</a> · <a href="https://orcid.org/0009-0002-7162-7890">ORCID</a></span>
+    <span>MIT licence · <span id="version"></span></span>
+  </footer>
+
+  <noscript><p class="noscript">ShellLab solves the form in your browser and needs JavaScript.</p></noscript>
+  <script type="module" src="src/app.js"></script>
 </body>
 </html>

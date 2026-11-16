@@ -1,0 +1,33 @@
+cff-version: 1.2.0
+message: "If you use ShellLab, please cite it as below."
+title: "ShellLab: live force-density form finding for compression shells"
+type: software
+authors:
+  - family-names: Hasib
+    given-names: Syed Nafiz Reja
+    orcid: "https://orcid.org/0009-0002-7162-7890"
+version: 0.1.0
+date-released: 2026-11-17
+license: MIT
+repository-code: "https://github.com/syednafizreja/ShellLab"
+url: "https://syednafizreja.github.io/ShellLab/"
+keywords: [form finding, force density method, shell structures, funicular, embodied carbon]
+references:
+  - type: software
+    title: ShellForm
+    authors: [{ family-names: Hasib, given-names: Syed Nafiz Reja }]
+    repository-code: "https://github.com/syednafizreja/ShellForm"
+  - type: dataset
+    title: ShellBench
+    authors: [{ family-names: Hasib, given-names: Syed Nafiz Reja }]
+    doi: 10.5281/zenodo.23851675
+  - type: article
+    title: "The force density method for form finding and computation of general networks"
+    authors: [{ family-names: Schek, given-names: H.-J. }]
+    journal: Computer Methods in Applied Mechanics and Engineering
+    volume: 3
+    issue: 1
+    start: 115
+    end: 134
+    year: 1974
+    doi: 10.1016/0045-7825(74)90045-0
