@@ -6,7 +6,7 @@ import * as F from './fdm.js';
 import { CONCRETE, carbon } from './carbon.js';
 
 export const VERSION = '0.1.0';
-const GAMMA_CONCRETE = 25; // kN/m^3, reinforced concrete unit weight [J]
+const GAMMA_CONCRETE = 25; // kN/m^3, reinforced concrete unit weight
 const MAX_N = 41; // nodes per side
 
 const $ = (id) => document.getElementById(id);
