@@ -9,8 +9,8 @@ authors:
 version: 0.1.0
 date-released: 2026-11-17
 license: MIT
-repository-code: "https://github.com/syednafizreja/ShellLab"
-url: "https://syednafizreja.github.io/ShellLab/"
+repository-code: "https://github.com/syednafizreja/parametric-canopy-carbon-optimization"
+url: "https://syednafizreja.github.io/parametric-canopy-carbon-optimization/"
 keywords: [form finding, force density method, shell structures, funicular, embodied carbon]
 references:
   - type: software

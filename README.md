@@ -2,9 +2,9 @@
 
 Live force-density form finding for compression shells, in the browser. Set a plan, the supports, the rise and a sideways load; read the member forces, the thrust at each support, and the concrete and A1–A3 carbon it takes.
 
-[![test](https://github.com/syednafizreja/ShellLab/actions/workflows/test.yml/badge.svg)](https://github.com/syednafizreja/ShellLab/actions/workflows/test.yml)
+[![test](https://github.com/syednafizreja/parametric-canopy-carbon-optimization/actions/workflows/test.yml/badge.svg)](https://github.com/syednafizreja/parametric-canopy-carbon-optimization/actions/workflows/test.yml)
 
-[Open ShellLab](https://syednafizreja.github.io/ShellLab/) | [ShellForm](https://github.com/syednafizreja/ShellForm) | [ShellBench](https://github.com/syednafizreja/ShellBench) | [Portfolio](https://syednafizreja.github.io/)
+[Open ShellLab](https://syednafizreja.github.io/parametric-canopy-carbon-optimization/) | [ShellForm](https://github.com/syednafizreja/ShellForm) | [ShellBench](https://github.com/syednafizreja/ShellBench) | [Portfolio](https://syednafizreja.github.io/)
 
 <picture>
   <source media="(prefers-color-scheme: light)" srcset="docs/screenshot-light.png">
